@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>طلب سروال Le Linen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .product-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    h2, p {
+      color: #222;
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input, select, textarea {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .color-options {
+      display: flex;
+      justify-content: space-around;
+    }
+    .color-options input[type="radio"] {
+      display: none;
+    }
+    .color-options label {
+      padding: 10px 15px;
+      border-radius: 6px;
+      background: #e0e0e0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .color-options input[type="radio"]:checked + label {
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+    }
+    .price-box, #summaryBox {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://via.placeholder.com/400x300?text=Le+Linen+Pants" alt="سروال Le Linen" class="product-image">
+    <h2>سروال رجالي Le Linen</h2>
+    <p>قماش خفيف ومريح بألوان: أسود، أبيض، باج<br>السعر: <strong>3600 دج</strong> للوحدة + توصيل 58 ولاية 🚚</p>
+
+    <form id="orderForm" onsubmit="return handleSubmit(event)">
+      <label for="name">الاسم واللقب</label>
+      <input type="text" name="name" required>
+
+      <label for="phone">رقم الهاتف</label>
+      <input type="tel" name="phone" required>
+
+      <label for="city">الولاية</label>
+      <select name="city" id="city" required onchange="updatePrices()">
+        <option value="">اختر ولايتك</option>
+        <option>الجزائر</option>
+        <option>وهران</option>
+        <option>قسنطينة</option>
+        <option>عنابة</option>
+        <option>سطيف</option>
+        <option>باتنة</option>
+        <option>بجاية</option>
+        <option>بومرداس</option>
+        <option>الجلفة</option>
+        <option>تبسة</option>
+        <option>أدرار</option>
+        <option>تمنراست</option>
+      </select>
+
+      <label for="size">المقاس</label>
+      <select name="size" required>
+        <option value="">اختر المقاس</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+      </select>
+
+      <label for="quantity">الكمية</label>
+      <input type="number" name="quantity" min="1" value="1" required onchange="updatePrices()">
+
+      <label>اختر اللون</label>
+      <div class="color-options">
+        <input type="radio" id="black" name="color" value="أسود" required>
+        <label for="black">أسود</label>
+
+        <input type="radio" id="white" name="color" value="أبيض">
+        <label for="white">أبيض</label>
+
+        <input type="radio" id="beige" name="color" value="باج">
+        <label for="beige">باج</label>
+      </div>
+
+      <label for="notes">ملاحظات إضافية (اختياري)</label>
+      <textarea name="notes" rows="3"></textarea>
+
+      <div class="price-box" id="priceBox">
+        🧾 السعر: --- دج<br>
+        🚚 التوصيل: --- دج<br>
+        💰 المجموع: --- دج
+      </div>
+
+      <button type="submit">تأكيد الطلب</button>
+    </form>
+
+    <div id="thankYouMessage" style="display:none; text-align:center; padding:20px;">
+      <h2>✅ شكراً لك!</h2>
+      <p>تم تسجيل طلبك بنجاح وسنتصل بك قريبًا لتأكيده.</p>
+      <div id="summaryBox">
+        🧾 سعر المنتج: <span id="thankPrice"></span> دج<br>
+        🚚 التوصيل: <span id="thankDelivery"></span> دج<br>
+        💰 المجموع: <span id="thankTotal"></span> دج
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const prices = {
+      'الجزائر': 400,
+      'وهران': 400,
+      'قسنطينة': 400,
+      'عنابة': 600,
+      'سطيف': 600,
+      'باتنة': 600,
+      'بجاية': 600,
+      'بومرداس': 600,
+      'الجلفة': 600,
+      'تبسة': 600,
+      'أدرار': 800,
+      'تمنراست': 1000
+    };
+
+    function updatePrices() {
+      const basePrice = 3600;
+      const city = document.getElementById('city').value;
+      const quantity = parseInt(document.querySelector('[name="quantity"]').value) || 1;
+      const delivery = prices[city] || 600;
+      const productTotal = basePrice * quantity;
+      const total = productTotal + delivery;
+
+      document.getElementById('priceBox').innerHTML =
+        `🧾 السعر: ${productTotal} دج<br>` +
+        `🚚 التوصيل: ${delivery} دج<br>` +
+        `💰 المجموع: ${total} دج`;
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+
+      const name = document.querySelector('[name="name"]').value.trim();
+      const phone = document.querySelector('[name="phone"]').value.trim();
+      const city = document.getElementById('city').value;
+      const size = document.querySelector('[name="size"]').value;
+      const quantity = parseInt(document.querySelector('[name="quantity"]').value);
+      const color = document.querySelector('input[name="color"]:checked');
+
+      if (!name || !phone || !city || !size || !quantity || !color) {
+        alert("يرجى ملء جميع الحقول المطلوبة قبل تأكيد الطلب.");
+        return false;
+      }
+
+      const basePrice = 3600;
+      const delivery = prices[city] || 600;
+      const productTotal = basePrice * quantity;
+      const total = productTotal + delivery;
+
+      // عرض صفحة الشكر
+      document.getElementById("orderForm").style.display = "none";
+      document.getElementById("thankYouMessage").style.display = "block";
+      document.getElementById("thankPrice").innerText = productTotal;
+      document.getElementById("thankDelivery").innerText = delivery;
+      document.getElementById("thankTotal").innerText = total;
+
+      return false;
+    }
+
+    window.onload = updatePrices;
+  </script>
+</body>
+</html>
