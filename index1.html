@@ -1,0 +1,145 @@
+<!-- انسخ هذا الملف واحفظه بصيغة .html ثم افتحه في المتصفح -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>طلب سروال Le Linen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* (نفس التنسيقات الموجودة عندك، لم أغيرها حفاظًا على التصميم) */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://via.placeholder.com/400x300?text=Le+Linen+Pants" alt="سروال Le Linen" class="product-image">
+    <h2>سروال رجالي Le Linen</h2>
+    <p>قماش خفيف ومريح بألوان: أسود، أبيض، باج<br>السعر: <strong>3600 دج</strong> للوحدة + توصيل حسب الولاية 🚚</p>
+
+    <form id="orderForm" onsubmit="submitToSheet(event)">
+      <label for="name">الاسم واللقب</label>
+      <input type="text" name="name" required>
+
+      <label for="phone">رقم الهاتف</label>
+      <input type="tel" name="phone" required>
+
+      <label for="city">الولاية</label>
+      <select name="city" id="city" required onchange="updatePrices()">
+        <option value="">اختر ولايتك</option>
+        <option>الجزائر</option>
+        <option>وهران</option>
+        <option>قسنطينة</option>
+        <option>عنابة</option>
+        <option>سطيف</option>
+        <option>باتنة</option>
+        <option>بجاية</option>
+        <option>بومرداس</option>
+        <option>الجلفة</option>
+        <option>تبسة</option>
+        <option>أدرار</option>
+        <option>تمنراست</option>
+      </select>
+
+      <label for="size">المقاس</label>
+      <select name="size" required>
+        <option value="">اختر المقاس</option>
+        <option>S</option>
+        <option>M</option>
+        <option>L</option>
+        <option>XL</option>
+      </select>
+
+      <label for="quantity">الكمية</label>
+      <input type="number" name="quantity" min="1" value="1" required onchange="updatePrices()">
+
+      <label>اختر اللون</label>
+      <div class="color-options">
+        <input type="radio" id="black" name="color" value="أسود" required>
+        <label for="black">أسود</label>
+
+        <input type="radio" id="white" name="color" value="أبيض">
+        <label for="white">أبيض</label>
+
+        <input type="radio" id="beige" name="color" value="باج">
+        <label for="beige">باج</label>
+      </div>
+
+      <label for="notes">ملاحظات إضافية (اختياري)</label>
+      <textarea name="notes" rows="3"></textarea>
+
+      <div class="price-box" id="priceBox">
+        🧾 السعر: --- دج<br>
+        🚚 التوصيل: --- دج<br>
+        💰 المجموع: --- دج
+      </div>
+
+      <button type="submit">تأكيد الطلب</button>
+    </form>
+
+    <div id="thankYouMessage" style="display:none; text-align:center; padding:20px;">
+      <h2>✅ شكراً لك!</h2>
+      <p>تم تسجيل طلبك بنجاح وسنتصل بك قريبًا لتأكيده.</p>
+      <div id="summaryBox">
+        🧾 سعر المنتج: <span id="thankPrice"></span> دج<br>
+        🚚 التوصيل: <span id="thankDelivery"></span> دج<br>
+        💰 المجموع: <span id="thankTotal"></span> دج
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const prices = {
+      'الجزائر': 400,
+      'وهران': 400,
+      'قسنطينة': 400,
+      'عنابة': 600,
+      'سطيف': 600,
+      'باتنة': 600,
+      'بجاية': 600,
+      'بومرداس': 600,
+      'الجلفة': 600,
+      'تبسة': 600,
+      'أدرار': 800,
+      'تمنراست': 1000
+    };
+
+    function updatePrices() {
+      const basePrice = 3600;
+      const city = document.getElementById('city').value;
+      const quantity = parseInt(document.querySelector('[name="quantity"]').value) || 1;
+      const delivery = prices[city] || 600;
+      const productTotal = basePrice * quantity;
+      const total = productTotal + delivery;
+
+      document.getElementById('priceBox').innerHTML =
+        `🧾 السعر: ${productTotal} دج<br>🚚 التوصيل: ${delivery} دج<br>💰 المجموع: ${total} دج`;
+    }
+
+    async function submitToSheet(event) {
+      event.preventDefault();
+
+      const form = document.getElementById("orderForm");
+      const data = new FormData(form);
+      const city = data.get("city");
+      const quantity = parseInt(data.get("quantity"));
+      const delivery = prices[city] || 600;
+      const productTotal = 3600 * quantity;
+      const total = productTotal + delivery;
+
+      // إضافة الأسعار للعرض
+      document.getElementById("orderForm").style.display = "none";
+      document.getElementById("thankYouMessage").style.display = "block";
+      document.getElementById("thankPrice").innerText = productTotal;
+      document.getElementById("thankDelivery").innerText = delivery;
+      document.getElementById("thankTotal").innerText = total;
+
+      // إرسال البيانات إلى Google Sheets
+      await fetch("https://script.google.com/macros/s/AKfycbzdqzBeH0qwpzHQJ7X7E4VxaOrBiL8XtSfHo9DWuMW78o5QWzV_Kdb0oivPlfvq0DKk/exec", {
+        method: "POST",
+        body: data
+      });
+    }
+
+    window.onload = updatePrices;
+  </script>
+</body>
+</html>
